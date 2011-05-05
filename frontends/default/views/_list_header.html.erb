@@ -1,9 +1,21 @@
-<% action_links = active_scaffold_config.action_links.collection
-  unless action_links.empty? -%>
+<% action_links = active_scaffold_config.action_links.collection %>
+<% if action_links.any? -%>
   <div class="actions">
     <%= render :partial => 'action_group', :locals => {:action_links => action_links,
                                                        :url_options => params_for,
                                                        :traverse_options => nested? ? {:reverse => true} : {}} %>
+
+    <% if active_scaffold_config.list.filter_column -%>
+      <% (active_scaffold_config.list.filter_column.is_a?(Array) ? active_scaffold_config.list.filter_column : [active_scaffold_config.list.filter_column]).each do |field| -%>
+        <div class="filter_column_option">
+          <label for="<%= field.to_s %>"><%= field.to_s.humanize %>:</label>
+          <% c = request.path_parameters['controller'].nil? ? '' :  request.path_parameters['controller'] %>
+          <% a = request.path_parameters['action'].nil? ? '' : request.path_parameters['action']  %>
+          <%= select_tag field, filter_option_helpers(field), :onchange => "filterColumnRedirect('#{'/' + c + '/' + a}', this)" %>
+        </div>
+      <% end -%>
+    <% end -%>
+
     <%= loading_indicator_tag(:action => :table) %>
   </div>
 <% end %>
